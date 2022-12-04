@@ -1,14 +1,16 @@
-import logo from './logo.svg';
 import './App.css';
-import Customer from './Components/Customer';
-import React, {Component} from 'react';
+//import Customer from './Components/Customer';
+//import tableName from './Components/tableName';
+import React, {Component, useState} from 'react';
 import Paper from '@material-ui/core/Paper';
 import Table from '@material-ui/core/Table';
-import TableHead from'@material-ui/core/TableHead';
-import TableBody from '@material-ui/core/TableBody';
-import TableRow from '@material-ui/core/TableRow';
-import TableCell from '@material-ui/core/TableCell';
+// import TableHead from'@material-ui/core/TableHead';
+// import TableBody from '@material-ui/core/TableBody';
+// import TableRow from '@material-ui/core/TableRow';
+// import TableCell from '@material-ui/core/TableCell';
 import {withStyles} from '@material-ui/core/styles';
+import { BrowserRouter, Route, Routes, Link } from "react-router-dom";
+import axios from 'axios';
 
 const styles = theme => ({
   root:{
@@ -21,54 +23,39 @@ const styles = theme => ({
   }
 })
 
-const customers = [
-  {
-  'id' : 1,
-  'image': 'https://placeimg.com/64/64/1',
-  'name': '박정섭',
-  'age': '26',
-  'gender': 'male',
-  'phonenumber': '000-0000-0000'
-  },
-  {
-    'id' : 2,
-    'image': 'https://placeimg.com/64/64/2',
-    'name': '홍길동',
-    'age': '23',
-    'gender': 'female',
-    'phonenumber': '111-1111-1111'
-  },
-  {
-    'id' : 3,
-    'image': 'https://placeimg.com/64/64/3',
-    'name': '김철수',
-    'age': '20',
-    'gender': 'male',
-    'phonenumber': '222-2222-2222'
-  }
-]
-
 class App extends Component {
+  state = {
+    tableName: ""
+  }
+
+  componentDidMount() {
+    this.callApi()
+      .then(res => this.setState({tableName: res}))
+      .catch(err => console.log(err));
+  }
+
+  callApi = async () => {
+    const response = await fetch('/api/table');
+    const body = await response.json();
+    return body;
+  }
+
+  send =()=>{
+    const client = axios.create();   // axios 기능생성
+    const name = '내이름은 코난';   
+    client.post('/api/aa' , {name} );   //axios 기능을 통한 post 사용및 name 값 전달.
+ }
+
   render(){
     const {classes} = this.props;
     return (
-      <Paper className={classes.root}>
-        <Table className={classes.table}>
-          <TableHead>
-            <TableRow>
-              <TableCell>no.</TableCell>
-              <TableCell>image</TableCell>
-              <TableCell>name</TableCell>
-              <TableCell>age</TableCell>
-              <TableCell>gender</TableCell>
-              <TableCell>phone number</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {customers.map(c=>{return(<Customer  id={c.id}  image={c.image}  name={c.name}  age={c.age}  gender={c.gender}  phonenumber={c.phonenumber}/>);})}
-          </TableBody>
-        </Table>
-      </Paper>
+      <BrowserRouter>
+        <Routes>
+          <Route path={`/`} element={this.state.tableName ? this.state.tableName.map(c=>{
+            return(<Link to={`/${c.table_name}`}><button onClick={this.send}>{c.table_name}</button></Link>);}) : ""}>
+          </Route>
+        </Routes>
+      </BrowserRouter>
     )
   }
 }
